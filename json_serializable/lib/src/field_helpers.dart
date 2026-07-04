@@ -57,7 +57,7 @@ class _FieldSet implements Comparable<_FieldSet> {
     /// Returns the offset of given field/property in its source file – with a
     /// preference for the getter if it's defined.
     int offsetFor(FieldElement e) {
-      if (e.isSynthetic) {
+      if (e.isOriginGetterSetter) {
         return (e.getter ?? e.setter)!.firstFragment.nameOffset ?? 0;
       }
       return e.firstFragment.nameOffset ?? 0;
@@ -86,8 +86,7 @@ List<FieldElement> createSortedFieldSet(ClassElement element) {
       continue;
     }
 
-    if (v is GetterElement) {
-      final variable = v.variable as FieldElement;
+    if (v case GetterElement(variable: final FieldElement variable)) {
       assert(!inheritedFields.containsKey(variable.name));
       inheritedFields[variable.name!] = variable;
     }
@@ -107,8 +106,4 @@ List<FieldElement> createSortedFieldSet(ClassElement element) {
   return fields.map((fs) => fs.field).toList(growable: false);
 }
 
-const _dartCoreObjectChecker = TypeChecker.typeNamed(
-  Object,
-  inPackage: 'core',
-  inSdk: true,
-);
+const _dartCoreObjectChecker = TypeChecker.fromUrl('dart:core#Object');
